@@ -264,6 +264,7 @@ void Cell::NaChannelParameters::Initialize(cellmodel::Cells* env ){
 void Cell::NaChannelParameters::ComputeVDepTerms(const double V, cellmodel::Cells* env ){
 	const Blockers b  = env->blocker;
 	const double drug = env->drug;
+	const double Tfactor = 1.0/(pow(Q10, (37.0-(T-273))/10.0));
 
 	// Default
 	a11 = Tfactor*8.5539/(7.4392e-2*exp(-V/17.0)+ 2.0373e-1*exp(-V/150));
@@ -1072,6 +1073,8 @@ void Cell::WT_SCN5A_Lidocaine(){
 
 	//Rate Constants **********************************************************
 	//WT Fits Reduced Model (no IM1, IM2)
+	const double Tfactor = 1.0/(pow(Q10, (37.0-(T-273))/10.0));
+
 	const double a11 = Tfactor*8.5539/(7.4392e-2*exp(-V/17.0)+ 2.0373e-1*exp(-V/150));
 	const double a12 = Tfactor*8.5539/(7.4392e-2*exp(-V/15.0)+ 2.0373e-1*exp(-V/150));
 	const double a13 = Tfactor*8.5539/(7.4392e-2*exp(-V/12.0)+ 2.0373e-1*exp(-V/150));
@@ -1235,6 +1238,8 @@ void Cell::WT_SCN5A_Flecainide(){
 
 	//Rate Constants **********************************************************
 	//WT Fits Reduced Model (no IM1, IM2)
+	const double Tfactor = 1.0/(pow(Q10, (37.0-(T-273))/10.0));
+
 	const double a11= Tfactor*8.5539/(7.4392e-2*exp(-V/17.0)+ 2.0373e-1*exp(-V/150));
 	const double a12= Tfactor*8.5539/(7.4392e-2*exp(-V/15.0)+ 2.0373e-1*exp(-V/150));
 	const double a13= Tfactor*8.5539/(7.4392e-2*exp(-V/12.0)+ 2.0373e-1*exp(-V/150));
@@ -2102,6 +2107,8 @@ void Cell::semi_impl_WT_SCN5A_Lidocaine(const double dt){
 
 	//Rate Constants **********************************************************
 	//WT Fits Reduced Model (no IM1, IM2)
+	const double Tfactor = 1.0/(pow(Q10, (37.0-(T-273))/10.0));
+
 	const double a11 = Tfactor*8.5539/(7.4392e-2*exp(-V/17.0)+ 2.0373e-1*exp(-V/150));
 	const double a12 = Tfactor*8.5539/(7.4392e-2*exp(-V/15.0)+ 2.0373e-1*exp(-V/150));
 	const double a13 = Tfactor*8.5539/(7.4392e-2*exp(-V/12.0)+ 2.0373e-1*exp(-V/150));
@@ -2254,6 +2261,8 @@ void Cell::semi_impl_WT_SCN5A_Flecainide(const double dt){
 
 	//Rate Constants **********************************************************
 	//WT Fits Reduced Model (no IM1, IM2)
+	const double Tfactor = 1.0/(pow(Q10, (37.0-(T-273))/10.0));
+
 	const double a11= Tfactor*8.5539/(7.4392e-2*exp(-V/17.0)+ 2.0373e-1*exp(-V/150));
 	const double a12= Tfactor*8.5539/(7.4392e-2*exp(-V/15.0)+ 2.0373e-1*exp(-V/150));
 	const double a13= Tfactor*8.5539/(7.4392e-2*exp(-V/12.0)+ 2.0373e-1*exp(-V/150));
@@ -2593,6 +2602,7 @@ void Cell::semi_impl_WT_SCN5A_Lidocaine_compare_BLAS_old(const double dt){
 	const double E_Na = (R*T/F)*log(Na_out/Na_in);
 
 	//Rate Constants **********************************************************
+	const double Tfactor = 1.0/(pow(Q10, (37.0-(T-273))/10.0));
 
 	//WT Fits Reduced Model (no IM1, IM2)
 	const double a11 = Tfactor*8.5539/(7.4392e-2*exp(-V/17.0)+ 2.0373e-1*exp(-V/150));
