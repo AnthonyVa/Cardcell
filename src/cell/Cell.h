@@ -202,7 +202,6 @@ private:
 	static constexpr double Q10  = 3;
 	// This does not work in clang, ok in gcc
 	//static constexpr double Tfactor = 1.0/(pow(Q10, (37.0-(T-273))/10.0));
-
 	static constexpr double pH   = 7.4;
 
 
