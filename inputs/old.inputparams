@@ -1,0 +1,39 @@
+// Simulation options
+{
+    // Default encoding for text
+    "NumberOfSimulations" : 3,
+    
+    "OutputFolder" : "outputs/b",
+    
+    // Simulations
+    "Simulations" : [
+        {"outputfileprefix" : "01", "type" : 0, "ncells": 1,
+         "solver": "rl",    "dt": 1e-3,
+         "WaitTime": 100.0,
+         "blocker": "",
+         //      "drug" : 1e-6,
+         "counterUpdateFreq": 10, "printtimeFreq": 10, "printCycleFreq": 10,
+         "printMarkovStateAfter": 8, "logMarkovIterations": false  },
+         
+        {"outputfileprefix" : "02", "type" : 1, "ncells": 3,
+         "solver": "rl",     "dt": 1e-3,       "BCL" : 500,
+         "MaxCycles": 1,     "WaitTime": 0.1,
+         "stimulus": -70.0,  "s1duration": 0.5, "ncellspaced": 1,
+         "blocker": "",
+         //       "drug" : 1e-6,
+         "counterUpdateFreq": 50, "printtimeFreq": 10, "printCycleFreq": 10,
+         "printMarkovStateAfter": 8, "logMarkovIterations": true },
+         
+        {"outputfileprefix" : "03", "type" : 2, "ncells": 4,
+         "solver": "rl",     "dt": 1e-3,       "BCL" : 350,
+         "MaxCycles": 2,     "WaitTime": 0.1,
+         "stimulus": -100.0,  "s1duration": 0.5, "ncellspaced": 1,
+         "blocker": "",
+         //       "drug" : 1e-6,
+         "counterUpdateFreq": 50, "printtimeFreq": 10, "printCycleFreq": 10,
+         "printMarkovStateAfter": 8, "logMarkovIterations": true }
+        ],
+        
+    // Cell Parameters
+    "cells" : { "s" : 3, "b": true }
+}

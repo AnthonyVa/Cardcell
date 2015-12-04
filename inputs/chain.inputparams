@@ -1,0 +1,54 @@
+// Simulation options
+{
+    // Default encoding for text
+    "NumberOfSimulations" : 4,
+    
+    "OutputFolder" : "outputs/chainPaced364",
+    
+    // Simulations
+    "Simulations" : [
+        {// No pacing - let the cell approach steady state
+        "outputfileprefix" : "Xinitial", "type" : 0, "ncells": 1,
+         "solver": "rl",    "dt": 1e0, // Coarse
+         "WaitTime": 600000.0,
+         "blocker": "None", 
+         "counterUpdateFreq": 1000, "printtimeFreq": 100, "printCycleFreq": 10,
+         "logMarkovIterations": false  },
+
+        { // Paced for 1 cycle sub-threshold response - 0.5 msec duration
+        "outputfileprefix" : "01", "type" : 1, "ncells": 100,
+         "solver": "rl",     "dt": 1e-2,       "BCL" : 1000,
+         "MaxCycles": 2,     "WaitTime": 1.0,
+         "stimulus": -107.0,
+         "s1duration": 0.5, "ncellspaced": 4,
+         "blocker": "None",
+         //       "drug" : 1e-3,
+         "counterUpdateFreq": 50, "printtimeFreq": 10, "printCycleFreq": 10,
+         "printMarkovStateAfter": 8, "logMarkovIterations": false },
+
+        { // Paced for 1 cycle supra-threshold response - 0.5 msec duration
+        "outputfileprefix" : "02", "type" : 1, "ncells": 100,
+         "solver": "rl",     "dt": 1e-2,       "BCL" : 1000,
+         "MaxCycles": 2,     "WaitTime": 1.0,
+         "stimulus": -108.0,
+         "s1duration": 0.5, "ncellspaced": 4,
+         "blocker": "None",
+         //       "drug" : 1e-3,
+         "counterUpdateFreq": 50, "printtimeFreq": 10, "printCycleFreq": 10,
+         "printMarkovStateAfter": 8, "logMarkovIterations": false },
+
+        { // Paced for 1 cycle supra-threshold response - 0.5 msec duration
+        "outputfileprefix" : "03", "type" : 1, "ncells": 100,
+         "solver": "rl",     "dt": 1e-2,       "BCL" : 1000,
+         "MaxCycles": 4,     "WaitTime": 1.0,
+         "stimulus": -164.0,
+         "s1duration": 0.5, "ncellspaced": 4,
+         "blocker": "None",
+         //       "drug" : 1e-6,
+         "counterUpdateFreq": 50, "printtimeFreq": 10, "printCycleFreq": 10,
+         "printMarkovStateAfter": 4, "logMarkovIterations": true } 
+        ],
+        
+    // Cell Parameters
+    "Cells" : { "GNa" : 7.5, "GK1": 10.8, "Diffusion": 1.54e-3 }
+}

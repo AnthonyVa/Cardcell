@@ -1,0 +1,66 @@
+// Simulation options
+{
+    // Default encoding for text
+    "NumberOfSimulations" : 5,
+    
+    "OutputFolder" : "outputs/singleCellPacedRL2",
+    
+    // Simulations
+    "Simulations" : [
+        {// No pacing - let the cell approach steady state
+        "outputfileprefix" : "Xinitial", "type" : 0, "ncells": 1,
+         "solver": "rl2",    "dt": 1e-3, // Fine
+         "WaitTime": 1000.0,
+         "blocker": "Lidocaine", 
+         "counterUpdateFreq": 100, "printtimeFreq": 100, "printCycleFreq": 10,
+         "logMarkovIterations": false  },
+
+        { // Paced for 1 cycle supra-threshold response - 0.5 msec duration
+        "outputfileprefix" : "01", "type" : 1, "ncells": 1,
+         "solver": "rl2",     "dt": 1e-4,       "BCL" : 1000,
+         "MaxCycles": 1,     "WaitTime": 1.0,
+         "stimulus": -84.0,
+         "s1duration": 0.5, "ncellspaced": 1,
+         "blocker": "Lidocaine",
+         //       "drug" : 1e-3,
+         "counterUpdateFreq": 50, "printtimeFreq": 100, "printCycleFreq": 10,
+         "printMarkovStateAfter": 0, "logMarkovIterations": true },
+
+        { // Paced for 1 cycle supra-threshold response - 0.5 msec duration
+        "outputfileprefix" : "02", "type" : 1, "ncells": 1,
+         "solver": "rl2",     "dt": 1e-3,       "BCL" : 1000,
+         "MaxCycles": 1,     "WaitTime": 1.0,
+         "stimulus": -84.0,
+         "s1duration": 0.5, "ncellspaced": 1,
+         "blocker": "Lidocaine",
+         //       "drug" : 1e-3,
+         "counterUpdateFreq": 50, "printtimeFreq": 10, "printCycleFreq": 10,
+         "printMarkovStateAfter": 0, "logMarkovIterations": true },
+
+        { // Paced for 1 cycle supra-threshold response - 0.5 msec duration
+        "outputfileprefix" : "03", "type" : 1, "ncells": 1,
+         "solver": "rl2",     "dt": 1e-2,       "BCL" : 1000,
+         "MaxCycles": 1,     "WaitTime": 1.0,
+         "stimulus": -84.0,
+         "s1duration": 0.5, "ncellspaced": 1,
+         "blocker": "Lidocaine",
+         //       "drug" : 1e-6,
+         "counterUpdateFreq": 50, "printtimeFreq": 1, "printCycleFreq": 10,
+         "printMarkovStateAfter": 0, "logMarkovIterations": true },
+
+        { // Paced for 1 cycle supra-threshold response - 0.5 msec duration
+        "outputfileprefix" : "04", "type" : 1, "ncells": 1,
+         "solver": "rl2",     "dt": 1e-1,       "BCL" : 1000,
+         "MaxCycles": 1,     "WaitTime": 1.0,
+         "stimulus": -84.0,
+         "s1duration": 0.5, "ncellspaced": 1,
+         "blocker": "Lidocaine",
+         //       "drug" : 1e-6,
+         "counterUpdateFreq": 5, "printtimeFreq": 1, "printCycleFreq": 10,
+         "printMarkovStateAfter": 0, "logMarkovIterations": true }
+ 
+        ],
+        
+    // Cell Parameters
+    "cells" : { "s" : 3, "b": true }
+}
