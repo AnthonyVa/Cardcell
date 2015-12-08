@@ -15,7 +15,7 @@ using std::flush;
 
 /********************************************************************/
 // File I/O Functions
-const char* inputfile = "inputs/singlecellL.inputparams";
+const char* inputfile = "inputs/singlecellS.inputparams";
 void readInputParameters( const char * inputfile, simulation**& sim,
 						  unsigned int& nsims );
 double getRealTime();
