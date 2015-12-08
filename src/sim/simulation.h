@@ -239,7 +239,7 @@ private:
 	unsigned int nCell = 1;
 	unsigned int nCellOutputs = 1;
 	unsigned int* nCellsToOutput = nullptr;
-	unsigned int TimedUpdate = 1000; // Print output every 1000 msec - i.e. 1 second
+//	unsigned int TimedUpdate = 1000; // Print output every 1000 msec - i.e. 1 second
 	// File Names
 	const string cellstateFileName  = "cellInitial_Conditions.dat"; // This file is used to store the initial hold of the 100 cell cable
 	const string stateFileName		= "Initial_Conditions1.dat"; // This file is used to store the initial hold of the 100 cell cable
