@@ -155,21 +155,7 @@ public:
 	}
 	void setSolver( solver* const s){ solve = s; }
 	void SetInitialConditions();
-	virtual bool step( const double told, const double tnew ){
-		const bool success = solve->step( told, tnew, Yold, Ynew );
-		if (success) {
-			if (solve->isInplace()) {
-				// Get a copy of all the state variables of all the cells
-				mycells->getStateFromCells( Yold );
-			} else {
-				// Update the old state to have the new values
-				for (unsigned int i=0; i<neqns; i++)
-					Yold[i] = Ynew[i];
-			}
-		}
-		return success;
-	}
-
+	virtual bool step( const double told, const double tnew );
 
 	void printEverything(const double time, const int cycle,
 						 const double interval, const int S2_cycle,
