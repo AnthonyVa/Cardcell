@@ -118,10 +118,15 @@ void simulation::savecells( ) {
 	// if n == 1 --> save a single cell state
 	//    n > 1  --> save multiple cells state
 	const unsigned int ncells = mycells->getNcells();
-	const char *f = (ncells==1)	? (folderName + "/" + cellstateFileName).c_str()
-								: (folderName + "/" + stateFileName).c_str();
-	cout << " Writing to: " << f << ". ";
-	FILE *fp = fopen(f, "wb");
+	// The following two lines resulted in f pointing to an empty string
+	//const char *f = (ncells==1)	? (folderName + "/" + cellstateFileName).c_str()
+	//							: (folderName + "/" + stateFileName).c_str();
+
+	string f = (ncells==1)	? (folderName + "/" + cellstateFileName)
+									: (folderName + "/" + stateFileName);
+
+	cout << " Writing to: " << f << ". " << flush;
+	FILE *fp = fopen(f.c_str(), "wb");
 	int nw=0;
 	for (unsigned int i = 0; i < ncells; i++) {
 		Cell temp = mycells->getCell( i );
@@ -132,11 +137,13 @@ void simulation::savecells( ) {
 }
 
 void simulation::readcells( ) {
-	const char *f = (folderName + "/" + stateFileName).c_str();
+	// The next line resulted in f pointing to an empty string
+	// const char *f = (folderName + "/" + cellstateFileName).c_str();
+	string f = folderName + "/" + cellstateFileName;
 	const unsigned int ncells = mycells->getNcells();
 
 	cout << " Reading data for " << ncells << " cells from " << f << ".";
-	FILE *fp = fopen(f, "r");
+	FILE *fp = fopen(f.c_str(), "r");
 	int nr = 0;
 	unsigned int ntotal = 0;
 	// References are messed up after reading structs from a file
@@ -155,11 +162,11 @@ void simulation::readcells( ) {
 }
 
 void simulation::readsinglecell( ) {
-	const char *f = (folderName + "/" + cellstateFileName).c_str();
+	string f = folderName + "/" + cellstateFileName;
 	const unsigned int ncells = mycells->getNcells();
 
 	cout << " Reading data for " << ncells << " cells from " << f << ".";
-	FILE *fp = fopen(f, "r");
+	FILE *fp = fopen(f.c_str(), "r");
 	Cell temp;
 	int nr = fread(temp.state, sizeof(Cell::state), 1, fp);
 	switch (nr){
