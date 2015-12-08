@@ -1,7 +1,7 @@
 //============================================================================
 // Name        : Cardcell.cpp
 // Author      : Anthony Varghese
-// Version     :
+// Version     : 1.0
 // Copyright   : All rights reserved by author(s)
 // Description : Hello World in C++, Ansi-style
 //============================================================================
@@ -23,7 +23,7 @@ double getRealTime();
 
 
 int main() {
-	cout << "Simple cardiac cell!" << endl; // prints Simple cardiac cell!
+	cout << "Cardiac cell simulation." << endl;
 
 	//Initializations
 	unsigned int NumberOfSimulations = 0;
@@ -35,6 +35,7 @@ int main() {
 	}
 
 	for (unsigned int nsim = 0; nsim < NumberOfSimulations; nsim++) {
+		cout << " -> Simulation #" << (nsim+1) << " of " << NumberOfSimulations << endl;
 		simulation* s = sims[ nsim ];
 
 		const double start_time = getRealTime();
