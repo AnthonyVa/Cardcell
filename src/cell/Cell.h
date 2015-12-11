@@ -196,7 +196,8 @@ private:
 	double currents[naux];
 
 	int Cell_type;
-	unsigned int pos_x=0, pos_y=0, pos_z=0; // Position of cell in 3-d
+	unsigned int pos_x=0;
+//	unsigned int pos_y=0, pos_z=0; // Position of cell in 3-d
 
 	// Na Channel constants
 	static constexpr double Q10  = 3;
