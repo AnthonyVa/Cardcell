@@ -10,14 +10,18 @@
 using std::cout;
 using std::endl;
 using std::flush;
+#include <vector>
+using std::vector;
 
 #include <sim/simulation.h>
 
 /********************************************************************/
 // File I/O Functions
-const char* inputfile = "inputs/singlecellS.inputparams";
+const char* inputfile = "inputs/test.input";
+string inputfilename("inputs/test.input");
 void readInputParameters( const char * inputfile, simulation**& sim,
 						  unsigned int& nsims );
+void readInputParameters( string inputfile, vector<simulation*> simulations );
 double getRealTime();
 /********************************************************************/
 
@@ -33,6 +37,9 @@ int main() {
 		cout << "Quitting program - Simulations not set up!" << endl;
 		return -1;
 	}
+
+	vector<simulation*> simulations;
+	readInputParameters( inputfilename, simulations );
 
 	for (unsigned int nsim = 0; nsim < NumberOfSimulations; nsim++) {
 		cout << " -> Simulation #" << (nsim+1) << " of " << NumberOfSimulations << endl;
