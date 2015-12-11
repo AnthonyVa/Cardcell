@@ -38,8 +38,8 @@ int main() {
 		return -1;
 	}
 
-	vector<simulation*> simulations;
-	readInputParameters( inputfilename, simulations );
+	//vector<simulation*> simulations;
+	//readInputParameters( inputfilename, simulations );
 
 	for (unsigned int nsim = 0; nsim < NumberOfSimulations; nsim++) {
 		cout << " -> Simulation #" << (nsim+1) << " of " << NumberOfSimulations << endl;
