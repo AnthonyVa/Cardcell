@@ -1,5 +1,5 @@
 /****************************************************************************
- * Cell.cpp
+ * Moreno2011Cell.cpp
  * Based on code from Moreno et al. 2011
  *
  *  Created on: Sep 30, 2014
@@ -8,8 +8,8 @@
 
 
 
-#include <cell/Cell.h>
 #include <cell/Cells.h>
+#include <cell/Moreno2011Cell.h>
 #include <string>
 
 
@@ -25,7 +25,7 @@
 /**
  * Cell constructor
  */
-Cell::Cell(){
+Moreno2011Cell::Moreno2011Cell(){
 	allocTemps();
 	SetInitialConditions();
 }
@@ -33,14 +33,14 @@ Cell::Cell(){
 /**
  * Cell destructor
  */
-Cell::~Cell(){
+Moreno2011Cell::~Moreno2011Cell(){
 	freeTemps();
 }
 
 /**
  * Cell copy constructor
  */
-Cell::Cell(const Cell& source){
+Moreno2011Cell::Moreno2011Cell(const Moreno2011Cell& source){
 	allocTemps();
 	Copy( source );
 }
@@ -48,7 +48,7 @@ Cell::Cell(const Cell& source){
 /**
  * Assignment operator
  */
-Cell& Cell::operator=(const Cell& rhs){
+Moreno2011Cell& Moreno2011Cell::operator=(const Moreno2011Cell& rhs){
 	if (this != &rhs){
 		freeTemps();
 		allocTemps();
@@ -61,7 +61,7 @@ Cell& Cell::operator=(const Cell& rhs){
 /*
  * allocTemps - allocate heap memory for Cell object
  */
-void Cell::allocTemps(){
+void Moreno2011Cell::allocTemps(){
 	Yn			  = gsl_vector_calloc( nNaChStates );
 	Ynph		  = gsl_vector_calloc( nNaChStates );
 	Ynp1		  = gsl_vector_calloc( nNaChStates );
@@ -74,7 +74,7 @@ void Cell::allocTemps(){
 /*
  * freeTemps - deallocate heap memory for Cell object
  */
-void Cell::freeTemps(){
+void Moreno2011Cell::freeTemps(){
 	if ( Yn				!= nullptr) gsl_vector_free( Yn   );
 	if ( Ynph			!= nullptr) gsl_vector_free( Ynph );
 	if ( Ynp1			!= nullptr) gsl_vector_free( Ynp1 );
@@ -85,7 +85,7 @@ void Cell::freeTemps(){
 }
 
 
-void Cell::Copy(const Cell& in){
+void Moreno2011Cell::Copy(const Moreno2011Cell& in){
 	if (this == &in)
 		return;
 
@@ -148,7 +148,7 @@ void Cell::Copy(const Cell& in){
 /*
  * copyTemps - copy contents of heap memory for Cell object
  */
-void Cell::copyTemps(const Cell& source){
+void Moreno2011Cell::copyTemps(const Moreno2011Cell& source){
 	gsl_vector_memcpy ( Yn  , source.Yn   );
 	gsl_vector_memcpy (Ynph , source.Ynph );
 	gsl_vector_memcpy (Ynp1 , source.Ynp1 );
@@ -162,13 +162,13 @@ void Cell::copyTemps(const Cell& source){
  * setParams - set cell parameters
  *
  */
-void Cell::setParams(const double* par){
+void Moreno2011Cell::setParams(const double* par){
 	G_Na = par[0];
 	GK1	 = par[1];
 
 }
 
-void Cell::NaChannelParameters::Initialize(cellmodel::Cells* env ){
+void Moreno2011Cell::NaChannelParameters::Initialize(cellmodel::Cells* env ){
 	const Blockers b  = env->blocker;
 	const double drug = env->drug;
 
@@ -261,7 +261,7 @@ void Cell::NaChannelParameters::Initialize(cellmodel::Cells* env ){
 
 // Rate Constants **********************************************************
 // WT Fits Reduced Model (no IM1, IM2)
-void Cell::NaChannelParameters::ComputeVDepTerms(const double V, cellmodel::Cells* env ){
+void Moreno2011Cell::NaChannelParameters::ComputeVDepTerms(const double V, cellmodel::Cells* env ){
 	const Blockers b  = env->blocker;
 	const double drug = env->drug;
 	const double Tfactor = 1.0/(pow(Q10, (37.0-(T-273))/10.0));
@@ -361,14 +361,14 @@ void Cell::NaChannelParameters::ComputeVDepTerms(const double V, cellmodel::Cell
  * Get a pointer "back" up to the Cells environment so
  * that each cell knows the environment parameter values
  */
-void Cell::setEnvironment( cellmodel::Cells* env ){
+void Moreno2011Cell::setEnvironment( cellmodel::Cells* env ){
 	cellenv = env;
 	NaChParams.Initialize( cellenv );
 }
 
 
 
-void Cell::Calculate_All(const double time){
+void Moreno2011Cell::Calculate_All(const double time){
 	//Updating current calculations for each cell
 	CalculateCurrents(time);
 
@@ -390,7 +390,7 @@ void Cell::Calculate_All(const double time){
  * calling method to call this at the right time - at the end of an old
  * stimulus cycle so that the data will be reset for new cycle.
  */
-void Cell::Calculate_Reset(double t) {
+void Moreno2011Cell::Calculate_Reset(double t) {
 	if (cellenv == nullptr )
 		return;
 
@@ -420,7 +420,7 @@ void Cell::Calculate_Reset(double t) {
 /*
  * First-order Rush-Larsen
  */
-void Cell::computeRushLarsenStepState(const double t, const double dt ) {
+void Moreno2011Cell::computeRushLarsenStepState(const double t, const double dt ) {
 	semi_impl_I_Na(t, dt);	//Fast sodium current
 	rush_I_Na_L(dt);
 
@@ -460,7 +460,7 @@ void Cell::computeRushLarsenStepState(const double t, const double dt ) {
  * Second-order Rush-Larsen - nor sure if this works
  *
  */
-void Cell::computeRushLarsen2StepState(const double t, const double dt, const int step, const double Vhalf ) {
+void Moreno2011Cell::computeRushLarsen2StepState(const double t, const double dt, const int step, const double Vhalf ) {
 	double timestep = dt;
 	if (step ==1){
 		// Save the state before the Rush-Larsen half-step
@@ -529,11 +529,11 @@ void Cell::computeRushLarsen2StepState(const double t, const double dt, const in
 }
 
 
-void Cell::setI_stimulus( double stim ) {
+void Moreno2011Cell::setI_stimulus( double stim ) {
 	I_stim = stim;
 }
 
-void Cell::calcI_total(double t ) {
+void Moreno2011Cell::calcI_total(double t ) {
 
 	I_total_old = I_total;
 	dI_total_old = dI_total;
@@ -551,7 +551,7 @@ void Cell::calcI_total(double t ) {
 	dI_total = I_total - I_total_old;
 }
 
-void Cell::calcI_Na(double t) {
+void Moreno2011Cell::calcI_Na(double t) {
 	if (t==0)
 		WT_SCN5A_Initial_Conditions();
 	else
@@ -564,7 +564,7 @@ void Cell::calcI_Na(double t) {
 /*
  * Na current in heart failure cells
  */
-void Cell::calcI_Na_L() {
+void Moreno2011Cell::calcI_Na_L() {
 	double G_Na_L = (cellenv->HeartFailure) ? 5.0 * 0.0065 : 0;
 	const double tau_h_L = 600;
 
@@ -582,7 +582,7 @@ void Cell::calcI_Na_L() {
 	I_Na_L = G_Na_L * mL * mL * mL * hL * (V - E_Na);
 }
 
-void Cell::calcI_Na_Ca() {
+void Moreno2011Cell::calcI_Na_Ca() {
 	const double k_Na_Ca = (cellenv->HeartFailure) ? 1.65 * 1000 : 1000; // pA/pF
 	const double Km_Na = 87.5; // Na_in half-saturation concentration of NaCa exhanger (mM)
 	const double KmNa3 = Km_Na * Km_Na * Km_Na; // KmNa^3 (mM^3)
@@ -600,7 +600,7 @@ void Cell::calcI_Na_Ca() {
 			* (exp(gamma * VmRTF ) * Nai3 * Ca_out - exp((gamma - 1) * VmRTF ) * Nao3 * Ca_in * alpha);
 }
 
-void Cell::calcI_Ca_L() {
+void Moreno2011Cell::calcI_Ca_L() {
 	//const double G_Ca_L = 3.980E-5;		// cm/(ms*uF)
 	const double G_Ca_L = (cellenv->HeartFailure) ? 2.5 * 3.980E-5 : 3.980E-5;
 
@@ -644,7 +644,7 @@ void Cell::calcI_Ca_L() {
 			/ (exp( Vm15RT2F ) - 1.);
 }
 
-void Cell::calcI_Kr() {
+void Moreno2011Cell::calcI_Kr() {
 	const double G_Kr = 0.153;		// nS/pF
 	const double E_Kr = RTF * log(K_out / K_in);
 
@@ -667,7 +667,7 @@ void Cell::calcI_Kr() {
 	I_Kr = G_Kr * sqrt(K_out / 5.4) * xr1 * xr2 * (V - E_Kr);
 }
 
-void Cell::calcI_Ks() {
+void Moreno2011Cell::calcI_Ks() {
 	double G_Ks = 0.392;
 	switch (Cell_type) {
 	case 1:	G_Ks = 0.392;	break;	// Cell type == 1 for endo
@@ -689,7 +689,7 @@ void Cell::calcI_Ks() {
 	I_Ks = G_Ks * xs * xs * (V - E_Ks);
 }
 
-void Cell::calcI_K1() {
+void Moreno2011Cell::calcI_K1() {
 	//const double G_K1 = 5.405;			// nS/pF
 	const double G_K1 = (cellenv->HeartFailure) ? 0.75 * GK1 : GK1;
 
@@ -704,7 +704,7 @@ void Cell::calcI_K1() {
 	I_K1 = G_K1 * K1_s * (V - E_K1);
 }
 
-void Cell::calcI_to() {
+void Moreno2011Cell::calcI_to() {
 	const double endoGtomax  = 0.073;
 	const double McellGtomax = 0.294;
 	const double epiGtomax   = 0.294;
@@ -741,34 +741,34 @@ void Cell::calcI_to() {
 	I_to = G_to * r * s * (V - E_to);
 }
 
-void Cell::calcI_p_Ca() {
+void Moreno2011Cell::calcI_p_Ca() {
 	const double G_p_Ca = 0.1238;		// nS/pF
 	const double Km_p_Ca = 0.0005;		// Half saturation constant (mM)
 
 	I_p_Ca = G_p_Ca * (Ca_in / (Km_p_Ca + Ca_in));
 }
 
-void Cell::calcI_Kp() {
+void Moreno2011Cell::calcI_Kp() {
 	const double G_Kp = 0.0146;			// nS/pF
 	const double E_Kp = RTF * log(K_out / K_in);
 
 	I_Kp = G_Kp * (1. / (1. + exp((25 - V) / 5.98))) * (V - E_Kp);
 }
 
-void Cell::calcI_Ca_b() {
+void Moreno2011Cell::calcI_Ca_b() {
 	const double G_Ca_b = 0.000592;
 	const double E_Ca_b = (RTF/z_Ca) * log(Ca_out / Ca_in);
 	I_Ca_b = G_Ca_b * (V - E_Ca_b);
 }
 
-void Cell::calcI_Na_b() {
+void Moreno2011Cell::calcI_Na_b() {
 	const double G_Na_b = 0.000290;		// nS/pF
 
 	double E_Na_b = ((R * T) / (z_Na * F)) * log(Na_out / Na_in);
 	I_Na_b = G_Na_b * (V - E_Na_b);
 }
 
-void Cell::calcI_Na_K() {
+void Moreno2011Cell::calcI_Na_K() {
 	//const double I_Na_K_bar = 2.724;	// Maximal I_Na_K (pA/pF)
 	const double I_Na_K_bar = (cellenv->HeartFailure) ? 1.0 * 2.724 : 2.724;
 	const double Km_Na_in = 40;			// Na_in half saturation constant
@@ -778,7 +778,7 @@ void Cell::calcI_Na_K() {
 			/ (1. + 0.1245 * exp( -0.1 * V /RTF ) + 0.0365 * exp(-V / RTF) );
 }
 
-void Cell::calcI_rel() {
+void Moreno2011Cell::calcI_rel() {
 	double k_Ca_sr, k1_rel, k2_rel;
 	const double G_rel   = 0.102;	// Max. rate constant of Ca release from JSR due to overload (mM/ms)
 	const double k1_rel_ = 0.15;// R to O and RI to I I_rel transition rate (mM^2/ms)
@@ -800,7 +800,7 @@ void Cell::calcI_rel() {
 	I_rel = G_rel * OO * (Ca_sr - Ca_ss);
 }
 
-void Cell::calcI_up() {
+void Moreno2011Cell::calcI_up() {
 	//const double G_up = 0.006375;		// mM/ms
 	const double G_up = (cellenv->HeartFailure) ? 0.64 * 0.006375 :  0.006375;
 	const double Km_up = 0.00025;			//mM
@@ -808,13 +808,13 @@ void Cell::calcI_up() {
 	I_up = G_up * Cai2 / (Cai2 + (Km_up * Km_up) );
 }
 
-void Cell::calcI_leak() {
+void Moreno2011Cell::calcI_leak() {
 	//const double G_leak = 0.00036;		// mM/ms
 	const double G_leak = (cellenv->HeartFailure) ? 0.00025 : 0.00036;
 	I_leak = G_leak * (Ca_sr - Ca_in);
 }
 
-void Cell::calcI_tr() {
+void Moreno2011Cell::calcI_tr() {
 	const double G_tr = 0.0038;		// mM/ms
 
 	I_tr = G_tr * (Ca_ss - Ca_in);
@@ -823,12 +823,12 @@ void Cell::calcI_tr() {
 /************************************** Dynamic Ion concentrations ************/
 
 //New K concentration in myoplasm
-void Cell::Calculate_K_in() {
+void Moreno2011Cell::Calculate_K_in() {
 	dK_in = -((I_K_ion_total + I_stim) * CAP) / (V_cyto * z_K * F);
 }
 
 //New Na concentration in myoplasm
-void Cell::Calculate_Na_in() {
+void Moreno2011Cell::Calculate_Na_in() {
 	dNa_in = -I_Na_ion_total * CAP / (V_cyto * z_Na * F);
 }
 
@@ -836,7 +836,7 @@ void Cell::Calculate_Na_in() {
  * New version - from cellml.org - see:
  * https://models.cellml.org/exposure/a7179d94365ff0c9c0e6eb7c6a787d3d/ten_tusscher_model_2006_IK1Ko_epi_units.cellml/view
  */
-void Cell::Calculate_Ca_in() {
+void Moreno2011Cell::Calculate_Ca_in() {
 	const double K_bufc = 0.001; // Ca_in half-saturation constant for cytoplasmic buffer (mM)
 	const double Bufc   = 0.2;   //Total cytoplasmic buffer concentration (mM)
 	const double cai_p_kbufc = Ca_in + K_bufc;
@@ -852,7 +852,7 @@ void Cell::Calculate_Ca_in() {
  * New version - from cellml.org - see:
  * https://models.cellml.org/exposure/a7179d94365ff0c9c0e6eb7c6a787d3d/ten_tusscher_model_2006_IK1Ko_epi_units.cellml/view
  */
-void Cell::Calculate_Ca_sr() {
+void Moreno2011Cell::Calculate_Ca_sr() {
 	const double Bufsr   = 10;	//Total SR buffer concentration (mM)
 	const double K_bufsr = 0.3;	// Ca_sr half-saturation constant for SR buffer (mM)
 	const double casr_p_kbufsr = Ca_sr + K_bufsr;
@@ -867,7 +867,7 @@ void Cell::Calculate_Ca_sr() {
  * New version - from cellml.org - see:
  * https://models.cellml.org/exposure/a7179d94365ff0c9c0e6eb7c6a787d3d/ten_tusscher_model_2006_IK1Ko_epi_units.cellml/view
  */
-void Cell::Calculate_Ca_ss() {
+void Moreno2011Cell::Calculate_Ca_ss() {
 	const double Bufss	 = 0.4;		//Total SS buffer concentration (mM)
 	const double K_bufss = 0.00025;	// Ca_ss half-saturation constant for SR buffer (mM)
 	const double cass_p_kbufss = Ca_ss + K_bufss;
@@ -878,7 +878,7 @@ void Cell::Calculate_Ca_ss() {
 	dCa_ss = ca_ss_bufss * dCa_ss;
 }
 
-void Cell::Calculate_Points(double t) {
+void Moreno2011Cell::Calculate_Points(double t) {
 	if (t <= cellenv->waitTime )
 			return; // nothing to report yet
 
@@ -949,7 +949,7 @@ void Cell::Calculate_Points(double t) {
 
 
 
-void Cell::SetInitialConditions() {
+void Moreno2011Cell::SetInitialConditions() {
 	Cell_type = 3;
 	V		= -86.2;
 	dVdt	= 0;
@@ -984,7 +984,7 @@ void Cell::SetInitialConditions() {
 }
 
 
-double Cell::CalculateCurrents(double t) {
+double Moreno2011Cell::CalculateCurrents(double t) {
 	calcI_Na(t);
 	calcI_Ca_L();
 	calcI_Kr();
@@ -1010,7 +1010,7 @@ double Cell::CalculateCurrents(double t) {
 /*
  * For finite difference of dVdt equation
  */
-double Cell::CalculateCurrents(double t, const double Vx) {
+double Moreno2011Cell::CalculateCurrents(double t, const double Vx) {
 	const double oldV = V;
 	V = Vx;
 	calcI_Na(t);
@@ -1040,7 +1040,7 @@ double Cell::CalculateCurrents(double t, const double Vx) {
  WT Markov Model with Zheng's new drug binding states
  January 14, 2009
  ******************************************************************************/
-void Cell::WT_SCN5A_Initial_Conditions() {
+void Moreno2011Cell::WT_SCN5A_Initial_Conditions() {
 
 	if (initializedExternally)
 		return;
@@ -1058,7 +1058,7 @@ void Cell::WT_SCN5A_Initial_Conditions() {
 	//state[5] = 1;
 }
 
-void Cell::WT_SCN5A_Lidocaine(){
+void Moreno2011Cell::WT_SCN5A_Lidocaine(){
 	checkNaChannelStates();
 
 	const double pKa  = 7.6;
@@ -1222,7 +1222,7 @@ void Cell::WT_SCN5A_Lidocaine(){
  WT Markov Model with Zheng's new drug binding states
  January 14, 2009
  ******************************************************************************/
-void Cell::WT_SCN5A_Flecainide(){
+void Moreno2011Cell::WT_SCN5A_Flecainide(){
 	checkNaChannelStates();
 
 	const double pKa=9.3;
@@ -1384,7 +1384,7 @@ void Cell::WT_SCN5A_Flecainide(){
 /*
  * Na current in heart failure cells - Rush Larsen version
  */
-void Cell::rush_I_Na_L(const double dt) {
+void Moreno2011Cell::rush_I_Na_L(const double dt) {
 	double G_Na_L = (cellenv->HeartFailure) ? 5.0 * 0.0065 : 0;
 	const double tau_h_L = 600;
 
@@ -1406,7 +1406,7 @@ void Cell::rush_I_Na_L(const double dt) {
 
 
 //Fast sodium current
-void Cell::semi_impl_I_Na(double t, const double dt){
+void Moreno2011Cell::semi_impl_I_Na(double t, const double dt){
 	if (t==0)
 		WT_SCN5A_Initial_Conditions();
 	else {
@@ -1460,7 +1460,7 @@ void Cell::semi_impl_I_Na(double t, const double dt){
 }
 
 
-void Cell::semi_impl_WT_SCN5A(const double dt){
+void Moreno2011Cell::semi_impl_WT_SCN5A(const double dt){
 	NaChParams.ComputeVDepTerms( V, cellenv );
 	NaChParams.set_NaCh_Matrices( OffDiagonalAn, DiagonalAn );
 
@@ -1521,7 +1521,7 @@ void Cell::semi_impl_WT_SCN5A(const double dt){
 
 
 
-void Cell::semi_impl_WT_SCN5A_LU(const double dt){
+void Moreno2011Cell::semi_impl_WT_SCN5A_LU(const double dt){
 	NaChParams.ComputeVDepTerms( V, cellenv );
 	NaChParams.set_NaCh_Matrices( OffDiagonalAn, DiagonalAn );
 
@@ -1586,7 +1586,7 @@ void Cell::semi_impl_WT_SCN5A_LU(const double dt){
 /*
  * exponential_I_Na1 - first step in 2nd order Rush Larsen
  */
-void Cell::exponential_I_Na1(double t, const double dt){
+void Moreno2011Cell::exponential_I_Na1(double t, const double dt){
 	if (t==0)
 		WT_SCN5A_Initial_Conditions();
 	else {
@@ -1626,7 +1626,7 @@ void Cell::exponential_I_Na1(double t, const double dt){
 /*
  * exponential_I_Na2 - second step in 2nd order Rush Larsen
  */
-void Cell::exponential_I_Na2(double t, const double dt, const double Vhalf){
+void Moreno2011Cell::exponential_I_Na2(double t, const double dt, const double Vhalf){
 	if (t==0)
 		WT_SCN5A_Initial_Conditions();
 	else {
@@ -1663,7 +1663,7 @@ void Cell::exponential_I_Na2(double t, const double dt, const double Vhalf){
 }
 
 //L type calcium channel Ca contribution
-void Cell::rush_I_Ca_L(const double dt){
+void Moreno2011Cell::rush_I_Ca_L(const double dt){
 	const double G_Ca_L = (cellenv->HeartFailure) ? 2.5 * 3.980E-5 : 3.980E-5;
 
 	const double d_inf = 1. / (1. + exp((-8 - V) / 7.5));
@@ -1707,7 +1707,7 @@ void Cell::rush_I_Ca_L(const double dt){
 }
 
 //Rapid rectifier
-void Cell::rush_I_Kr(const double dt){
+void Moreno2011Cell::rush_I_Kr(const double dt){
 	const double G_Kr = 0.153;		// nS/pF
 	const double E_Kr = RTF * log(K_out / K_in);
 
@@ -1729,7 +1729,7 @@ void Cell::rush_I_Kr(const double dt){
 }
 
 //Slow rectifier
-void Cell::rush_I_Ks(const double dt){
+void Moreno2011Cell::rush_I_Ks(const double dt){
 	double G_Ks = 0.392;
 	switch (Cell_type) {
 	case 1:	G_Ks = 0.392;	break;	// Cell type == 1 for endo
@@ -1752,7 +1752,7 @@ void Cell::rush_I_Ks(const double dt){
 }
 
 //Transient outward current
-void Cell::rush_I_to(const double dt){
+void Moreno2011Cell::rush_I_to(const double dt){
 	const double endoGtomax  = 0.073;
 	const double McellGtomax = 0.294;
 	const double epiGtomax   = 0.294;
@@ -1790,7 +1790,7 @@ void Cell::rush_I_to(const double dt){
 }
 
 //Release from SR
-void Cell::rush_I_rel(const double dt){
+void Moreno2011Cell::rush_I_rel(const double dt){
 	double k_Ca_sr, k1_rel, k2_rel, dR_bar;
 	const double G_rel = 0.102;	// Max. rate constant of Ca release from JSR due to overload (mM/ms)
 	const double k1_rel_ = 0.15;// R to O and RI to I I_rel transition rate (mM^2/ms)
@@ -1816,13 +1816,13 @@ void Cell::rush_I_rel(const double dt){
 }
 
 //Dynamic [Na] in Myoplasm
-void Cell::rush_Na_in(const double dt){
+void Moreno2011Cell::rush_Na_in(const double dt){
 	Calculate_Na_in();
 	Na_in = Na_in + dt * dNa_in;
 }
 
 //Dynamic [K] in Myoplasm
-void Cell::rush_K_in(const double dt){
+void Moreno2011Cell::rush_K_in(const double dt){
 	Calculate_K_in ();
 	K_in = K_in + dt * dK_in;
 }
@@ -1830,7 +1830,7 @@ void Cell::rush_K_in(const double dt){
 //Dynamic [Ca] in Myoplasm
 // Old version of Calculate_Ca_in used in Moreno et al. 2011
 //  New Ca concentration in cytoplasm
-void Cell::rush_Ca_in(const double dt){
+void Moreno2011Cell::rush_Ca_in(const double dt){
 	const double buffer = 0.2;	//Total cytoplasmic buffer concentration (mM)
 	const double K_buffer = 0.001;// Ca_in half-saturation constant for cytoplasmic buffer (mM)
 
@@ -1846,7 +1846,7 @@ void Cell::rush_Ca_in(const double dt){
 //Dynamic [Ca] in JSR
 //  Old version of Calculate_Ca_in used in Moreno et al. 2011
 //  New Ca concentration in SR
-void Cell::rush_Ca_sr(const double dt){
+void Moreno2011Cell::rush_Ca_sr(const double dt){
 	const double buffer_sr = 10;			//Total SR buffer concentration (mM)
 	const double K_buffer_sr = 0.3;	// Ca_sr half-saturation constant for SR buffer (mM)
 
@@ -1859,7 +1859,7 @@ void Cell::rush_Ca_sr(const double dt){
 }
 
 //Dynamic [Ca] in NSR
-void Cell::rush_Ca_ss(const double dt){
+void Moreno2011Cell::rush_Ca_ss(const double dt){
 	double b_Ca_ss, c_Ca_ss, dCa_ss;
 	const double buffer_ss = 0.4;			//Total SS buffer concentration (mM)
 	const double K_buffer_ss = 0.00025;	// Ca_ss half-saturation constant for SR buffer (mM)
@@ -1875,7 +1875,7 @@ void Cell::rush_Ca_ss(const double dt){
 	Ca_ss = (sqrt(b_Ca_ss * b_Ca_ss + 4 * c_Ca_ss) - b_Ca_ss) / 2;
 }
 
-void Cell::NaChannelParameters::set_NaCh_Matrices( gsl_matrix* M, gsl_vector* D){
+void Moreno2011Cell::NaChannelParameters::set_NaCh_Matrices( gsl_matrix* M, gsl_vector* D){
 	// The following 30 consts are the diagonal coefficients of the A matrix
 	const double coef_IC3	= (a11 + a3 + ki_on);
 	const double coef_IC2	= (b11 + a3 + a12 + ki_on);
@@ -2074,17 +2074,17 @@ namespace patch
 /*
  * Check sum
  */
-void Cell::checkNaChannelStates(){
+void Moreno2011Cell::checkNaChannelStates(){
 	const double tolerance = 1e-4;
 	double sum = 0;
 	for (unsigned int i=nNaChFirstState; i<=nNaChLastState; i++)
 		if (state[i] < -tolerance){
 			throw std::runtime_error(
 					"Negative state value in Na Channel state " +
-					patch::to_string(i) );
+					std::to_string(i) );
 		} else
 			sum = sum + state[i];
-	if ( fabs (sum -1.0) > tolerance ) {
+	if ( fabs (sum - 1.0) > tolerance ) {
 		throw std::runtime_error(
 				"Error in Na Channel - sum of states,\t sum = " +
 				patch::to_string(sum) );
@@ -2095,7 +2095,7 @@ void Cell::checkNaChannelStates(){
 
 #include <iostream>
 
-void Cell::semi_impl_WT_SCN5A_Lidocaine(const double dt){
+void Moreno2011Cell::semi_impl_WT_SCN5A_Lidocaine(const double dt){
 	const double pKa	= 7.6;
 	const double diffusion	= 500;
 	const double portion	= 1/(1+ pow(10, (pH-pKa)) );
@@ -2249,7 +2249,7 @@ void Cell::semi_impl_WT_SCN5A_Lidocaine(const double dt){
 }
 
 
-void Cell::semi_impl_WT_SCN5A_Flecainide(const double dt){
+void Moreno2011Cell::semi_impl_WT_SCN5A_Flecainide(const double dt){
 	const double pKa	= 9.3;
 	const double diffusion	= 5500;
 	const double portion	= 1/(1+ pow(10, (pH-pKa)) );
@@ -2400,7 +2400,7 @@ void Cell::semi_impl_WT_SCN5A_Flecainide(const double dt){
 	I_Na = G_Na*(O)*(V - E_Na);
 }
 
-void Cell::set_NaCh_Matrices( gsl_matrix* M, gsl_vector* D,
+void Moreno2011Cell::set_NaCh_Matrices( gsl_matrix* M, gsl_vector* D,
 		const double a11,	const double a12,	const double a13,
 		const double b11,	const double b12,	const double b13,
 		const double a3,	const double b3,	const double a2, const double b2,
@@ -2591,7 +2591,7 @@ void Cell::set_NaCh_Matrices( gsl_matrix* M, gsl_vector* D,
 	gsl_matrix_set( M,  Dc1,   c1, kc_on);
 }
 
-void Cell::semi_impl_WT_SCN5A_Lidocaine_compare_BLAS_old(const double dt){
+void Moreno2011Cell::semi_impl_WT_SCN5A_Lidocaine_compare_BLAS_old(const double dt){
 	const double pKa	= 7.6;
 	const double diffusion	= 500;
 	const double portion	= 1/(1+ pow(10, (pH-pKa)) );
@@ -3155,7 +3155,7 @@ void Cell::semi_impl_WT_SCN5A_Lidocaine_compare_BLAS_old(const double dt){
 }
 
 
-void Cell::semi_impl_WT_SCN5A_Flecainide_old (const double dt){
+void Moreno2011Cell::semi_impl_WT_SCN5A_Flecainide_old (const double dt){
 	double O_n , OS_n , C1_n , C2_n , C3_n , IC3_n , IC2_n , IF_n , IM1_n , IM2_n ;
 	double DO_n , DOS_n , DC1_n , DC2_n , DC3_n , DIC3_n , DIC2_n , DIF_n , DIM1_n , DIM2_n ;
 	double D_O_n , D_OS_n , D_C1_n , D_C2_n , D_C3_n , D_IC3_n , D_IC2_n , D_IF_n , D_IM1_n , D_IM2_n ;

@@ -1,9 +1,18 @@
 // Simulation options
 {
+    // Define the cell model used in all simulations
+    "CellModel" : "NVKN1999",
+    
+    
     // Default encoding for text
     "NumberOfSimulations" : 4,
     
     "OutputFolder" : "outputs/test",
+    // Levels of console output
+    // 0 ==> only simulation #s shown
+    // 1 ==> 0 + Cycles for each simulation
+    // 2 ==> 1 + Time steps 
+    "ConsoleOutput" : 0,
     
     // Simulations
     "Simulations" : [
@@ -17,7 +26,7 @@
 
         { // Paced for 1 cycle sub-threshold response - 0.5 msec duration
         "outputfileprefix" : "01", "type" : 1, "ncells": 10,
-         "solver": "rl",     "dt": 1e-1,       "BCL" : 1000,
+         "solver": "rl",     "dt": 1e-2,       "BCL" : 1000,
          "MaxCycles": 1,     "WaitTime": 1.0,
          "stimulus": -107.0,
          "s1duration": 0.5, "ncellspaced": 4,

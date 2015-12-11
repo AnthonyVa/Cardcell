@@ -1,5 +1,5 @@
 /****************************************************************************
- * Cell.h - defines cell_param struct - i.e. Cell
+ * Moreno2011Cell.h - defines cell_param struct - i.e. Cell
  *
  * Based on code from Moreno et al. 2011
  *
@@ -25,16 +25,16 @@ enum NaChannelMMSolver{
 	LUDecomp
 };
 
-class Cell {
+class Moreno2011Cell {
 public:
-	Cell();
-	virtual ~Cell();
-	Cell(const Cell& source);
-	Cell& operator=(const Cell& rhs);
+	Moreno2011Cell();
+	virtual ~Moreno2011Cell();
+	Moreno2011Cell(const Moreno2011Cell& source);
+	Moreno2011Cell& operator=(const Moreno2011Cell& rhs);
 
 	void setParams(const double* par);
 	void setXpos(unsigned int p){ pos_x = p; }
-	void Copy(const Cell& in);
+	void Copy(const Moreno2011Cell& in);
 	void setEnvironment( cellmodel::Cells* env );
 	void setState(double* newstate) {
 		for (unsigned int i = 0; i < nstates; i++)
@@ -337,7 +337,7 @@ private:
 	gsl_matrix* OffDiagonalAn = nullptr;
 	void allocTemps();
 	void freeTemps();
-	void copyTemps(const Cell& source);
+	void copyTemps(const Moreno2011Cell& source);
 
 
 

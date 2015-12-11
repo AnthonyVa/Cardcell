@@ -19,10 +19,12 @@ using std::string;
 
 
 simulation::simulation(const unsigned int type, const unsigned int n,
-		const double* par, const string folder, const string fpre) :
-								sim_type( type ),
-								nCell( n ),
-								folderName(folder){
+		const double* par, const string folder, const string fpre,
+		const unsigned int outlev) :
+				sim_type( type ),
+				outlevel(outlev),
+				nCell( n ),
+				folderName(folder){
 	mycells = new cellmodel::Cells( nCell, this , par );
 	if (nCell==1) {
 		nCellOutputs = 1;
@@ -56,7 +58,7 @@ simulation::~simulation(){
 	delete mycells;
 }
 
-void simulation::SetInitialConditions(){
+void simulation::SetInitialConditions( ){
 	// Load in initial conditions for each cell in the array
 	mycells->SetInitialConditions();
 
@@ -89,14 +91,14 @@ void simulation::SetInitialConditions(){
 
 
 
-void simulation::printcellAux(ofstream& of, const double t, Cell& c) {
+void simulation::printcellAux(ofstream& of, const double t, Moreno2011Cell& c) {
 	of << t << ", "
 			<< c.getV() << ", " << c.getI_K1() << ", " << c.getI_Na() << ", "
 			<< c.getI_axnm1() << ", " << c.getI_axnp1() << ", " << c.getI_axial()
 			<< endl;
 }
 
-void simulation::printcellEAD(ofstream& of, Cell& c, Cell& c2, int r, int p, double S1) {
+void simulation::printcellEAD(ofstream& of, Moreno2011Cell& c, Moreno2011Cell& c2, int r, int p, double S1) {
 	double th_diff = 0;
 	if (r == 0)
 		th_diff = 1000 * 0.01 / (c.t_thr - c2.t_thr);
@@ -114,67 +116,76 @@ void simulation::printcellEAD(ofstream& of, Cell& c, Cell& c2, int r, int p, dou
 /*
  * savecells
  */
-void simulation::savecells( ) {
+void simulation::savecells() {
 	// if n == 1 --> save a single cell state
 	//    n > 1  --> save multiple cells state
 	const unsigned int ncells = mycells->getNcells();
-	// The following two lines resulted in f pointing to an empty string
-	//const char *f = (ncells==1)	? (folderName + "/" + cellstateFileName).c_str()
-	//							: (folderName + "/" + stateFileName).c_str();
-
 	string f = (ncells==1)	? (folderName + "/" + cellstateFileName)
 									: (folderName + "/" + stateFileName);
+	if (outlevel > 1)
+		cout << "    Writing to: " << f << ". " << flush;
 
-	cout << " Writing to: " << f << ". " << flush;
 	FILE *fp = fopen(f.c_str(), "wb");
 	int nw=0;
 	for (unsigned int i = 0; i < ncells; i++) {
-		Cell temp = mycells->getCell( i );
-		nw += fwrite(temp.state, sizeof(Cell::state), 1, fp);
+		Moreno2011Cell temp = mycells->getCell( i );
+		nw += fwrite(temp.state, sizeof(Moreno2011Cell::state), 1, fp);
 	}
 	fclose(fp);
-	std::cout << " Wrote state of " << nw << " cell(s)" << std::endl << flush;
+
+	if (outlevel > 1)
+		cout << " Wrote state of " << nw << " cell(s)" << std::endl << flush;
 }
 
-void simulation::readcells( ) {
-	// The next line resulted in f pointing to an empty string
-	// const char *f = (folderName + "/" + cellstateFileName).c_str();
+/*
+ * readcells
+ */
+void simulation::readcells() {
 	string f = folderName + "/" + cellstateFileName;
 	const unsigned int ncells = mycells->getNcells();
+	if (outlevel > 1)
+		cout << "    Reading data for " << ncells << " cells from " << f << ".";
 
-	cout << " Reading data for " << ncells << " cells from " << f << ".";
 	FILE *fp = fopen(f.c_str(), "r");
 	int nr = 0;
 	unsigned int ntotal = 0;
 	// References are messed up after reading structs from a file
 	for (unsigned int i = 0; i < ncells; i++) {
-		Cell temp;
-		nr = fread(temp.state, sizeof(Cell::state), 1, fp);
+		Moreno2011Cell temp;
+		nr = fread(temp.state, sizeof(Moreno2011Cell::state), 1, fp);
 		if (nr <= 0)
 			break;
 		mycells->copyCell( i, temp);
 		ntotal++;
 	}
 	fclose(fp);
-	if (ntotal < ncells)
-		cout << " --> Read " << nr << " cells. ";
-	cout << " Done reading." << endl << flush;
+
+	if (outlevel > 1){
+		if ( ntotal < ncells )
+			cout << " --> Read " << nr << " cells. ";
+		cout << " Done reading." << endl << flush;
+	}
 }
 
-void simulation::readsinglecell( ) {
+/*
+ * readsinglecell
+ */
+void simulation::readsinglecell() {
 	string f = folderName + "/" + cellstateFileName;
 	const unsigned int ncells = mycells->getNcells();
+	if (outlevel > 1)
+		cout << "    Reading data for " << ncells << " cells from " << f << ".";
 
-	cout << " Reading data for " << ncells << " cells from " << f << ".";
 	FILE *fp = fopen(f.c_str(), "r");
-	Cell temp;
-	int nr = fread(temp.state, sizeof(Cell::state), 1, fp);
+	Moreno2011Cell temp;
+	int nr = fread(temp.state, sizeof(Moreno2011Cell::state), 1, fp);
 	switch (nr){
 	case 0:
 		cout << " --> Could not read cell state!!! ";
 		break;
 	case 1:
-		cout << " --> Read single cell state. ";
+		if (outlevel > 1)
+			cout << " --> Read single cell state. ";
 		mycells->copyCells( temp );
 		break;
 	default:
@@ -182,7 +193,9 @@ void simulation::readsinglecell( ) {
 		break;
 	}
 	fclose(fp);
-	cout << " Done setting cell states from file." << endl << flush;
+
+	if (outlevel > 1)
+		cout << " Done setting cell states from file." << endl << flush;
 }
 
 
@@ -192,7 +205,8 @@ void simulation::printEverything(const double time, const int cycle,
 					 int& counter ){
 	counter++;
 	if ((counter % counterupdates) == 0) {
-		cout << ".";
+		if (outlevel > 1)
+			cout << ".";
 		// Print auxilliary variables
 		if ((counter % (printtimeupdate*counterupdates)) == 0){
 			//This file will have voltages against time for each cell
@@ -205,9 +219,10 @@ void simulation::printEverything(const double time, const int cycle,
 				mycells->printNacell( files->Na, time, nCell/2 );
 			}
 
-			cout << "t=" << time << "msec" << endl;
+			if (outlevel > 1)
+				cout << "t=" << time << "msec" << endl;
 			for (unsigned int i=0; i<nCellOutputs; i++){
-				Cell  c = mycells->getCell( nCellsToOutput[i] );
+				Moreno2011Cell  c = mycells->getCell( nCellsToOutput[i] );
 				printcellAux( *(files->cellAuxFs[ i ]), time, c );
 			}
 
@@ -234,20 +249,22 @@ void simulation::printEverything(const double time, const int cycle,
 		}
 
 		if ( (counter % (printCycleUpdate*printtimeupdate*counterupdates)) == 0){
-			switch (sim_type){
-			case 0:
-				cout << "Non-paced simulation, t=" << time  << " end time= ";
-				break;
-			case 1:
-			case 2:
-				cout << "Paced simulation, cycle: " << cycle << " of " << MaxNumberOfBeats
-						<< ", t=" << time  << ", this interval= ";
-				break;
-			default:
-				break;
-			}
+			if (outlevel > 1)
+				switch (sim_type){
+				case 0:
+					cout << "Non-paced simulation, t=" << time  << " end time= ";
+					break;
+				case 1:
+				case 2:
+					cout << "Paced simulation, cycle: " << cycle << " of " << MaxNumberOfBeats
+							<< ", t=" << time  << ", this interval= ";
+					break;
+				default:
+					break;
+				}
 			counter = 0;
-			cout  << interval << ", [drug] is " << drug << endl;
+			if (outlevel > 1)
+				cout  << interval << ", [drug] is " << drug << endl;
 		}
 		cout << flush;
 	}
@@ -272,8 +289,8 @@ void simulation::printEverything(const double time, const int cycle,
 					cellnext =  nCellsToOutput[i] - 1;
 				}
 
-				Cell  c    = mycells->getCell( cellout );
-				Cell  cadj = mycells->getCell( cellnext );
+				Moreno2011Cell  c    = mycells->getCell( cellout );
+				Moreno2011Cell  cadj = mycells->getCell( cellnext );
 
 				printcellEAD( *(files->EADFs[ i ]),  c,  cadj, flag, cellout,  cycle );
 			}
@@ -326,7 +343,7 @@ void simulation::printMarkovIterations( const double t ){
 	const unsigned int ncells = mycells->getNcells();
 	// find middle cell
 	const unsigned int middlecell = ncells/2;
-	Cell  c = mycells->getCell( middlecell);
+	Moreno2011Cell  c = mycells->getCell( middlecell);
 //MarkovIterations should be in the rushlarsen object
 	*(files->MarkovIterations) << t <<", " << c.MarkovIterations
 						       << ", " << c.MarkovIterationError << endl;

@@ -10,7 +10,7 @@
 
 #include <fstream>
 using std::ofstream;
-#include <cell/Cell.h>
+#include <cell/Moreno2011Cell.h>
 
 class simulation;
 enum Blockers{
@@ -33,9 +33,9 @@ public:
 		return nstates;
 	}
 
-	Cell getCell( const unsigned int n );
-	void copyCell( const unsigned int i, const Cell& source);
-	void copyCells( const Cell& source );
+	Moreno2011Cell getCell( const unsigned int n );
+	void copyCell( const unsigned int i, const Moreno2011Cell& source);
+	void copyCells( const Moreno2011Cell& source );
 	void getStateFromCells ( double* Y );
 
 	// Differential Equation Solver function
@@ -69,7 +69,7 @@ public:
 	static constexpr double Vthreshold = -75; // mV
 
 private:
-	Cell* cells;
+	Moreno2011Cell* cells;
 	// Simulation parameters
 	const simulation* sim;
 

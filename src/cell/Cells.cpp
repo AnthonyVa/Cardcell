@@ -19,7 +19,7 @@ using std::endl;
 namespace cellmodel {
 
 Cells::Cells( const unsigned int n, const simulation* s , const double* par) : ncells(n) {
-	cells = new Cell[ncells];
+	cells = new Moreno2011Cell[ncells];
 	nstates = cells[0].nstates;
 	setSimulation( s );
 	nCellsPaced = s->nCellPaced;
@@ -66,15 +66,15 @@ void Cells::setSimulation( const simulation* s ){
 }
 
 
-Cell Cells::getCell( const unsigned int n ){
+Moreno2011Cell Cells::getCell( const unsigned int n ){
 	return cells[n];
 }
 
-void Cells::copyCell( const unsigned int i, const Cell& source){
+void Cells::copyCell( const unsigned int i, const Moreno2011Cell& source){
 	cells[i].Copy( source );
 }
 
-void Cells::copyCells( const Cell& source ){
+void Cells::copyCells( const Moreno2011Cell& source ){
 	for (unsigned int i = 0; i < ncells; i++)
 		copyCell( i , source);// References are messed up after reading structs from a file, so copy
 }

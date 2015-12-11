@@ -17,35 +17,33 @@ using std::vector;
 
 /********************************************************************/
 // File I/O Functions
-const char* inputfile = "inputs/test.input";
 string inputfilename("inputs/test.input");
-void readInputParameters( const char * inputfile, simulation**& sim,
-						  unsigned int& nsims );
-void readInputParameters( string inputfile, vector<simulation*> simulations );
+void readInputParameters( string inputfile, vector<simulation*>& simulations, unsigned int& outputlevel );
 double getRealTime();
 /********************************************************************/
 
 
 int main() {
-	cout << "Cardiac cell simulation." << endl;
+	// Note the starting time value for timing purposes
+	const double Start_time = getRealTime();
+
+	cout << "Cardiac cell simulation: reading from \"" << inputfilename << "\"" << endl;
 
 	//Initializations
-	unsigned int NumberOfSimulations = 0;
-	simulation** sims = nullptr; // array of pointers to simulation
-	readInputParameters( inputfile, sims, NumberOfSimulations );
-	if (sims == nullptr) {
-		cout << "Quitting program - Simulations not set up!" << endl;
+	vector<simulation*> simulations;
+	unsigned int outLevel = 0;
+	readInputParameters( inputfilename, simulations, outLevel );
+	const unsigned int NumberOfSimulations = simulations.size();
+	if (NumberOfSimulations == 0){
+		cout << "Quitting program - No valid simulations in " << inputfilename << endl;
 		return -1;
 	}
 
-	//vector<simulation*> simulations;
-	//readInputParameters( inputfilename, simulations );
 
-	for (unsigned int nsim = 0; nsim < NumberOfSimulations; nsim++) {
-		cout << " -> Simulation #" << (nsim+1) << " of " << NumberOfSimulations << endl;
-		simulation* s = sims[ nsim ];
-
+	int nsim = 1;
+	for ( auto s : simulations ){
 		const double start_time = getRealTime();
+		cout << " -> Simulation #" << nsim++ << " of " << NumberOfSimulations << endl;
 
 		// Load in initial conditions for each cell in the array
 		s->SetInitialConditions();
@@ -53,7 +51,7 @@ int main() {
 		const unsigned int S2_cycle = 0; // not really used currently
 		const unsigned int LastCycle = s->MaxNumberOfBeats;
 		double t = 0;
-		int stepCounter = -1; // Get's incremented in printEverything
+		int stepCounter = -1; // Gets incremented in printEverything
 		bool stop = false;
 		s->printEverything(0, 0, s->waitTime, 0, stepCounter );
 
@@ -89,10 +87,11 @@ int main() {
 
 		delete s; // to save memory
 		const double end_time = getRealTime( );
-		cout << "Timing Information: " << (end_time - start_time) << " seconds" << endl;
-	} // sim loop
+		cout << "   Execution Time: " << (end_time - start_time) << " seconds" << endl;
+	} // simulation loop
 
-	delete[] sims;
-
+	// Compute total time for all simulations
+	const double End_time = getRealTime( );
+	cout << "Execution Time for sequence of simulations: " << (End_time - Start_time) << " seconds" << endl;
 	return 0;
 }

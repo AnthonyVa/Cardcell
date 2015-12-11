@@ -37,19 +37,9 @@ struct filesStruct{
 	unsigned int ncellfiles;
 	ofstream** cellAuxFs;
 
-//	ofstream* First;
-//	ofstream* Quarter;
-//	ofstream* Midpoint;
-//	ofstream* Three4ths;
-//	ofstream* Last;
 	ofstream* CV;
 	// These files hold data for individual cells to compare V_min, V_max, V_90 etc. to compare between cells
 	ofstream** EADFs;
-//	ofstream* EAD00;
-//	ofstream* EAD25;
-//	ofstream* EAD50;
-//	ofstream* EAD75;
-//	ofstream* EAD99;
 	ofstream* MarkovIterations;
 
 	filesStruct(const string folder, const string fpre, const unsigned int ncellf){
@@ -65,11 +55,6 @@ struct filesStruct{
 			cellAuxFs[i] = new ofstream( (sstm.str()).c_str() );
 		}
 
-//		First	 = new ofstream(( prefix + "0.00.txt").c_str());
-//		Quarter	 = new ofstream(( prefix + "0.25.txt").c_str());
-//		Midpoint = new ofstream(( prefix + "0.50.txt").c_str());
-//		Three4ths = new ofstream((prefix + "0.75.txt").c_str());
-//		Last	 = new ofstream(( prefix + "1.00.txt").c_str());
 		CV	  = new ofstream(( prefix + "CV.txt").c_str());
 
 		EADFs = new ofstream*[ncellfiles];
@@ -79,11 +64,6 @@ struct filesStruct{
 			EADFs[i] = new ofstream( (sstm.str()).c_str() );
 		}
 
-//		EAD00	 = new ofstream(( prefix + "EAD0.00.txt").c_str());
-//		EAD25	 = new ofstream(( prefix + "EAD0.25.txt").c_str());
-//		EAD50	 = new ofstream(( prefix + "EAD0.50.txt").c_str());
-//		EAD75	 = new ofstream(( prefix + "EAD0.75.txt").c_str());
-//		EAD99	 = new ofstream(( prefix + "EAD1.00.txt").c_str());
 		MarkovIterations = new ofstream(( prefix + "MarkovIter.txt").c_str());
 	}
 	~filesStruct(){
@@ -94,11 +74,6 @@ struct filesStruct{
 			delete cellAuxFs[i];
 		}
 		delete[] cellAuxFs;
-//		First->close();		delete First;
-//		Quarter->close();	delete Quarter;
-//		Midpoint->close();	delete Midpoint;
-//		Three4ths->close();	delete Three4ths;
-//		Last->close();		delete Last;
 		CV->close();		delete CV;
 
 		for (unsigned int i=0; i<ncellfiles; i++) {
@@ -106,11 +81,6 @@ struct filesStruct{
 			delete EADFs[i];
 		}
 		delete[] EADFs;
-//		EAD00->close();		delete EAD00;
-//		EAD25->close();		delete EAD25;
-//		EAD50->close();		delete EAD50;
-//		EAD75->close();		delete EAD75;
-//		EAD99->close();		delete EAD99;
 		MarkovIterations->close(); delete MarkovIterations;
 	}
 };
@@ -121,7 +91,8 @@ class simulation{
 public:
 	// Constructor - the argument n is the number of cells
 	simulation(const unsigned int type, const unsigned int n,
-			const double* par, const string folder, const string fpre);
+			const double* par, const string folder, const string fpre,
+			const unsigned int outlev);
 	void set_params( const double dt_in, const double BCL_in,
 					 const unsigned int MaxCycles, const double WaitTime,
 					 const double stim, const double s1dur,
@@ -161,8 +132,8 @@ public:
 						 const double interval, const int S2_cycle,
 						 int& counter );
 	void printCV(const double time, const int cycle);
-	void printcellAux( ofstream& of, const double t, Cell& c );
-	void printcellEAD( ofstream& of, Cell& c , Cell& c2, int r, int p, double S1);
+	void printcellAux( ofstream& of, const double t, Moreno2011Cell& c );
+	void printcellEAD( ofstream& of, Moreno2011Cell& c , Moreno2011Cell& c2, int r, int p, double S1);
 	void savecells( );
 	void readcells( );
 	void readsinglecell( );
@@ -235,6 +206,7 @@ public:
 	bool HeartFailure = false;	// HeartFailure == true --> parameters for Heart failure, else, regular parameters
 
 private:
+	unsigned int outlevel = 1;
 	// Number of cells in array
 	unsigned int nCell = 1;
 	unsigned int nCellOutputs = 1;

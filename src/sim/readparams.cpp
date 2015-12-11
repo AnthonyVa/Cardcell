@@ -41,6 +41,8 @@ void readInputParameters( const char * inputfile, simulation**& sims, unsigned i
 		return;
 	}
 
+	// First check which model is to be used
+
 	// At this point, the input has been parsed, we can start
 	//  extracting all the data.
 	nsims = root.get("NumberOfSimulations" , "0" ).asInt();
@@ -80,7 +82,7 @@ void readInputParameters( const char * inputfile, simulation**& sims, unsigned i
 	   int ncells = simulations[index].get("ncells", "1" ).asInt();
 	   string fprefix = simulations[index].get("outputfileprefix", "").asString();
 
-	   sims[index] = new simulation(sim_type, ncells, params, folder, fprefix);
+	   sims[index] = new simulation(sim_type, ncells, params, folder, fprefix, 1);
 	   simulation* s = sims[index];
 
 
@@ -132,7 +134,7 @@ void readInputParameters( const char * inputfile, simulation**& sims, unsigned i
 /*
  * readInputParameters - read input parameters from json file into sim list
  */
-void readInputParameters( string inputfile, std::vector<simulation*> sims ){
+void readInputParameters( string inputfile, std::vector<simulation*>& sims, unsigned int& outputlevel ){
 	// Create an input file stream object to read in the
 	//  text of the inputfile and then parse as a json file
 	std::ifstream ifs(inputfile);
@@ -146,9 +148,20 @@ void readInputParameters( string inputfile, std::vector<simulation*> sims ){
 		return;
 	}
 
+	// First check which model is to be used
+	std::string model = root.get("CellModel" , "Moreno2011" ).asString();
+	if (model.compare( "Moreno2011" ) != 0)	{
+		if (model.compare( "NVKN1998" ) != 0) {
+			cerr << "Unknown Cell model" << endl;
+			return;
+		}
+	}
+
+
+	outputlevel = root.get("ConsoleOutput" , "0" ).asInt();
 	// At this point, the input has been parsed, we can start
 	//  extracting all the data.
-	const int nsims = root.get("NumberOfSimulations" , "0" ).asInt();
+	const unsigned int nsims = root.get("NumberOfSimulations" , "0" ).asInt();
 	if (nsims <= 0)
 		return;
 
@@ -166,7 +179,7 @@ void readInputParameters( string inputfile, std::vector<simulation*> sims ){
 #endif
 		system(  command.c_str() );
 	}
-	cout << "Read input file; "  << nsims
+	cout << "Read input file: \""  << inputfile << "\"; "<< nsims
 			<< " simulations, output will go into: "<< folder << endl;
 
 	const Json::Value simulations = root["Simulations"];
@@ -183,8 +196,9 @@ void readInputParameters( string inputfile, std::vector<simulation*> sims ){
 	   int ncells = simulations[index].get("ncells", "1" ).asInt();
 	   string fprefix = simulations[index].get("outputfileprefix", "").asString();
 
-	   sims[index] = new simulation(sim_type, ncells, params, folder, fprefix);
-	   simulation* s = sims[index];
+	   // Create a simulation object and add it to the list
+	   simulation* s = new simulation(sim_type, ncells, params, folder, fprefix, outputlevel );
+	   sims.push_back( s );
 
 
 		// Set up solver
